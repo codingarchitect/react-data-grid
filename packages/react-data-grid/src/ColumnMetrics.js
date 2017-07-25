@@ -83,7 +83,7 @@ function recalculate(metrics: ColumnMetricsType): ColumnMetricsType {
   let providedColumns = isImmutableColumns ? metrics.columns.toJS() : metrics.columns;
 
   // compute width for columns which specify width
-  let columns = setColumnWidths(providedColumns, metrics.totalWidth);
+  let columns = setColumnWidths(providedColumns, metrics.totalWidth - getScrollbarSize());
 
   let unallocatedWidth = columns.filter(c => c.width).reduce((w, column) => {
     return w - column.width;

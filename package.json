@@ -1,5 +1,5 @@
 {
-  "name": "react-data-grid",
+  "name": "@codingarchitect/react-data-grid",
   "version": "2.0.1",
   "description": "Data grid for React",
   "main": "src/index.js",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/adazzle/react-data-grid.git"
+    "url": "https://github.com/codingarchitect/react-data-grid.git"
   },
   "keywords": [
     "react",
@@ -110,7 +110,7 @@
   "author": "adazzle",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/adazzle/react-data-grid/issues"
+    "url": "https://github.com/codingarchitect/react-data-grid/issues"
   },
-  "homepage": "https://github.com/adazzle/react-data-grid"
+  "homepage": "https://github.com/codingarchitect/react-data-grid"
 }
