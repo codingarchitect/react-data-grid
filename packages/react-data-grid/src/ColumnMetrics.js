@@ -2,7 +2,6 @@ const shallowCloneObject = require('./shallowCloneObject');
 const sameColumn = require('./ColumnComparer');
 const ColumnUtils = require('./ColumnUtils');
 const getScrollbarSize  = require('./getScrollbarSize');
-const isColumnsImmutable  = require('./utils/isColumnsImmutable');
 
 type Column = {
   key: string;
@@ -17,33 +16,43 @@ type ColumnMetricsType = {
 };
 
 function setColumnWidths(columns, totalWidth) {
-  return columns.map(column => {
-    let colInfo = Object.assign({}, column);
-    if (column.width) {
-      if (/^([0-9]+)%$/.exec(column.width.toString())) {
-        colInfo.width = Math.floor(
-          column.width / 100 * totalWidth);
-      }
+  return columns.map(columnData => {
+    let column = Object.assign({}, columnData);
+    if (column.width && /^([0-9]+)%$/.exec(column.width.toString())) {
+      column.width = Math.floor(parseInt(column.width, 10) / 100 * totalWidth);
     }
-    return colInfo;
+    return column;
   });
 }
 
-function setDefferedColumnWidths(columns, unallocatedWidth, minColumnWidth) {
+function setDefferedColumnWidths(columns, initialUnallocatedWidth, minColumnWidth) {
   let defferedColumns = columns.filter(c => !c.width);
-  return columns.map((column) => {
-    if (!column.width) {
-      if (unallocatedWidth <= 0) {
-        column.width = minColumnWidth;
-      } else {
-        let columnWidth = Math.floor(unallocatedWidth / (ColumnUtils.getSize(defferedColumns)));
-        if (columnWidth < minColumnWidth) {
-          column.width = minColumnWidth;
-        } else {
-          column.width = columnWidth;
-        }
-      }
+  let deferredColumnsCount = ColumnUtils.getSize(defferedColumns);
+  let unallocatedWidth = initialUnallocatedWidth;
+  let addColumnToUnallocated = (column) => {
+    unallocatedWidth += column.width;
+    deferredColumnsCount += 1;
+  };
+  let removeColumnFromUnallocated = (column) => {
+    unallocatedWidth -= column.width;
+    deferredColumnsCount -= 1;
+  };
+
+  return columns.map((column, i, arr) => { // eslint-disable-line
+    let unallocatedColumnWidth = (deferredColumnsCount !== 0) ? Math.floor(unallocatedWidth / deferredColumnsCount) : 0;
+
+    if (column.width && !column.minWidth) return column;
+
+    if (column.minWidth) {
+      if (column.width) addColumnToUnallocated(column);
+      column.width = Math.max(column.minWidth, unallocatedColumnWidth, column.width || 0);
+      removeColumnFromUnallocated(column);
+    } else if (unallocatedWidth <= 0) {
+      column.width = minColumnWidth;
+    } else {
+      column.width = unallocatedColumnWidth;
     }
+
     return column;
   });
 }
@@ -57,14 +66,24 @@ function setColumnOffsets(columns) {
   });
 }
 
+function isImmutable(value, structure) {
+  return typeof Immutable !== 'undefined' &&
+          Immutable[structure] !== 'undefined' &&
+          (value instanceof Immutable[structure]);
+}
+
+
 /**
  * Update column metrics calculation.
  *
  * @param {ColumnMetricsType} metrics
  */
 function recalculate(metrics: ColumnMetricsType): ColumnMetricsType {
-    // compute width for columns which specify width
-  let columns = setColumnWidths(metrics.columns, metrics.totalWidth);
+  let isImmutableColumns = isImmutable(metrics.columns, 'List');
+  let providedColumns = isImmutableColumns ? metrics.columns.toJS() : metrics.columns;
+
+  // compute width for columns which specify width
+  let columns = setColumnWidths(providedColumns, metrics.totalWidth);
 
   let unallocatedWidth = columns.filter(c => c.width).reduce((w, column) => {
     return w - column.width;
@@ -110,7 +129,7 @@ function resizeColumn(metrics: ColumnMetricsType, index: number, width: number):
 }
 
 function areColumnsImmutable(prevColumns: Array<Column>, nextColumns: Array<Column>) {
-  return isColumnsImmutable(prevColumns) && isColumnsImmutable(nextColumns);
+  return isImmutable(prevColumns, 'List') && isImmutable(nextColumns, 'List');
 }
 
 function compareEachColumn(prevColumns: Array<Column>, nextColumns: Array<Column>, isSameColumn: (a: Column, b: Column) => boolean) {
