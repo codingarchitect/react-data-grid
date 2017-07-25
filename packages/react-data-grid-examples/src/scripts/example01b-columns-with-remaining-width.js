@@ -43,6 +43,6 @@ module.exports = exampleWrapper({
   WrappedComponent: Example,
   exampleName: 'Columns with Remaining Widths Example',
   exampleDescription: 'A grid with columns occupying remaining width.',
-  examplePath: './scripts/example01a-percentage-column-widths.js',
+  examplePath: './scripts/example01b-columns-with-remaining-width.js',
   examplePlaygroundLink: 'https://jsfiddle.net/'
 });
