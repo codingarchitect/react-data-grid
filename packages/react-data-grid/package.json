@@ -1,9 +1,8 @@
 {
   "name": "@codingarchitect/react-data-grid",
-  "version": "2.0.55",
+  "version": "2.0.61",
   "description": "The grid core",
-  "scripts": {
-    
+  "scripts": {    
     "test": "npm test"
   },
   "keywords": [
@@ -12,6 +11,7 @@
     "data-grid",
     "core"
   ],
+  "repository": "adazzle/react-data-grid",
   "author": "Adazzle",
   "license": "MIT"
 }
