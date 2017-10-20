@@ -1,6 +1,6 @@
 {
   "name": "@codingarchitect/react-data-grid",
-  "version": "2.0.61",
+  "version": "2.0.62",
   "description": "The grid core",
   "scripts": {    
     "test": "npm test"
